@@ -1,0 +1,21 @@
+{
+  "name": "digital-handprint-launch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Synchronized multi-device inauguration experience",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

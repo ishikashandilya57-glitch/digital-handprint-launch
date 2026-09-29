@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060B1A">
+  <title>Non-Iron Garment Unit Inauguration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css?v=touch-target-2">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main id="app" aria-live="polite">
+    <section id="role-screen" class="screen role-screen">
+      <div class="eyebrow"><span></span> Ceremony control</div>
+      <h1>Ceremonial Handprint<br><em>Launch</em></h1>
+      <p class="lead">Non-Iron Garment Dipping &amp; Washing Unit Inauguration</p>
+      <div class="role-grid">
+        <button class="role-card" data-role="guest-1"><b>01</b><span>Guest 1</span><small>Handprint scanner</small></button>
+        <button class="role-card" data-role="guest-2"><b>02</b><span>Guest 2</span><small>Handprint scanner</small></button>
+        <button class="role-card" data-role="guest-3"><b>03</b><span>Guest 3</span><small>Handprint scanner</small></button>
+        <button class="role-card display-card" data-role="display"><b>◈</b><span>Main Display</span><small>Projector / screen</small></button>
+      </div>
+    </section>
+
+    <section id="guest-screen" class="screen hidden">
+      <header class="topbar"><div class="brand-mark">NI</div><div><strong>Unit Inauguration</strong><small id="guest-label">Guest terminal</small></div><div class="guest-actions"><button id="emergency-start" class="emergency-start" type="button">Emergency Start</button><button class="change-role" data-change-role>Change role</button></div></header>
+      <div class="guest-stage">
+        <div class="terminal-kicker"><span class="live-dot"></span><span id="connection-copy">Scanner online</span></div>
+        <h2>Place your hand<br>to inaugurate</h2>
+        <p>Align your palm inside the frame, then press and hold.</p>
+        <button id="scanner" class="scanner" aria-label="Press and hold for 1.5 seconds to activate your handprint">
+          <svg class="progress" viewBox="0 0 300 300" aria-hidden="true"><circle class="progress-track" cx="150" cy="150" r="140"/><circle id="progress-ring" class="progress-value" cx="150" cy="150" r="140"/></svg>
+          <div class="scan-sweep"></div>
+          <img class="hand-icon" src="/activation-hand.png" alt="" draggable="false">
+          <span id="scan-copy">Hold to scan</span>
+        </button>
+        <div class="ready-status"><div class="status-line"><span id="status-title">Awaiting handprint</span><b id="ready-count">0 / 3</b></div><div class="mini-progress"><i id="mini-progress-value"></i></div><p id="status-copy">Waiting for others: 0 of 3 ready</p></div>
+      </div>
+    </section>
+
+    <section id="display-screen" class="screen hidden">
+      <header class="topbar"><div class="brand-mark">DH</div><div><strong>Digital Handprint Launch</strong><small>Main Display</small></div><div class="display-actions"><span class="socket-badge"><i></i> Live sync</span><button id="display-emergency-start" class="display-emergency-start" type="button">Emergency Start</button><button class="change-role" data-change-role>Change role</button></div></header>
+      <div class="display-stage">
+        <div class="eyebrow"><span></span> Laguna India <span></span></div>
+        <h2 id="display-heading">Awaiting <em>inauguration</em></h2>
+        <p id="display-subtitle"></p>
+        <div class="ceremony-system"><i></i> Ceremony system <b>•</b> Ready</div>
+        <div class="guest-cards" id="guest-cards"></div>
+        <div class="display-footer launch-loader">
+          <div class="secure-copy"><i class="secure-icon"></i><div><strong>Inauguration status</strong><small id="display-count">Waiting for all 3 handprints</small></div></div>
+          <div class="verification-track" aria-label="Guest handprint verification progress">
+            <div class="verify-step" data-step="1"><i>01</i><span>Guest 1</span></div>
+            <b></b>
+            <div class="verify-step" data-step="2"><i>02</i><span>Guest 2</span></div>
+            <b></b>
+            <div class="verify-step" data-step="3"><i>03</i><span>Guest 3</span></div>
+          </div>
+          <div class="verified-total"><strong id="display-ratio">0 / 3</strong><small>Handprints verified</small></div>
+        </div>
+      </div>
+      <div class="reset-hint">Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> to reset</div>
+    </section>
+
+    <section id="video-screen" class="screen video-screen hidden" aria-label="Inauguration film">
+      <video id="inauguration-video" preload="auto" playsinline disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen">
+        <source src="/assets/inauguration-intro.mp4" type="video/mp4">
+      </video>
+    </section>
+
+    <section id="final-black-screen" class="screen final-black-screen hidden" aria-label="Ceremony complete"></section>
+
+    <section id="countdown-screen" class="screen overlay hidden">
+      <div class="countdown-orbit"><div id="countdown-number">5</div></div>
+      <p>Inaugurating the new unit</p>
+    </section>
+
+    <section id="reveal-screen" class="screen overlay reveal hidden">
+      <div class="reveal-grid"></div><div class="reveal-flare"></div>
+      <div class="reveal-content">
+        <div class="reveal-mark">NI</div>
+        <div class="eyebrow"><span></span> Ceremonial launch complete <span></span></div>
+        <h2>Welcome</h2>
+        <p class="welcome-declaration">Officially Inaugurated</p>
+        <h3>Non-Iron Garment<br>Dipping &amp; Washing Unit</h3>
+        <p class="welcome-tagline">A new chapter in precision processing, quality finishing, and manufacturing excellence.</p>
+        <div class="ceremony-confirmations">
+          <article><i>✓</i><span>3 Handprints Verified</span></article>
+          <article><i>✓</i><span>Unit Inaugurated</span></article>
+          <article><i>✓</i><span>Ready for Operations</span></article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/hold-controller.js"></script>
+  <script src="/script.js?v=hold-1500-9"></script>
+</body>
+</html>
