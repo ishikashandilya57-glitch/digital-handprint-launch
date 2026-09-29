@@ -11,7 +11,7 @@ const io = new Server(server, { serveClient: true });
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
-const HOLD_DURATION_MS = 1500;
+const HOLD_DURATION_MS = 1000;
 const COUNTDOWN_LEAD_MS = 1800;
 const COUNTDOWN_DURATION_MS = 5000;
 const validSlots = new Set(['1', '2', '3']);

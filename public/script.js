@@ -27,7 +27,7 @@
   let releaseTimer = 0;
 
   const hold = new HoldController({
-    duration: 1500,
+    duration: 1000,
     onProgress(progress) {
       ring.style.strokeDashoffset = String(circumference * (1 - progress));
       document.getElementById('scan-copy').textContent = progress ? `Scanning ${Math.round(progress * 100)}%` : 'Hold to scan';
