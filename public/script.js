@@ -336,7 +336,13 @@
     if (now - lastTouchEventAt < 500 || now - lastNonTouchUpAt < 500) return;
     beginHandHold();
   });
-  window.addEventListener('keydown', event => { if (role === 'display' && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') { event.preventDefault(); socket.emit('admin:reset'); } });
+  window.addEventListener('keydown', event => {
+    const isResetShortcut = (event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'r';
+    if (role === 'display' && isResetShortcut) {
+      event.preventDefault();
+      socket.emit('admin:reset');
+    }
+  });
   socket.on('connect', () => { registerRole(); document.getElementById('connection-copy').textContent = 'Scanner online'; });
   socket.on('disconnect', () => { document.getElementById('connection-copy').textContent = 'Reconnecting…'; });
   socket.on('ceremony:state', next => { state = next; clockOffset = next.serverNow - Date.now(); renderState(); });
