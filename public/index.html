@@ -19,9 +19,10 @@
       <h1>Ceremonial Handprint<br><em>Launch</em></h1>
       <p class="lead">Non-Iron Garment Dipping &amp; Washing Unit Inauguration</p>
       <div class="role-grid">
-        <button class="role-card" data-role="guest-1"><b>01</b><span>Guest 1</span><small>Nick Wheeler</small></button>
+        <button class="role-card" data-role="guest-1"><b>01</b><span>Guest 1</span><small>Nick Keyte</small></button>
         <button class="role-card" data-role="guest-2"><b>02</b><span>Guest 2</span><small>Guillaume Dalais</small></button>
         <button class="role-card" data-role="guest-3"><b>03</b><span>Guest 3</span><small>Eric Dorchies</small></button>
+        <button class="role-card" data-role="guest-4"><b>04</b><span>Guest 4</span><small>Maneesh Patel</small></button>
         <button class="role-card display-card" data-role="display"><b>◈</b><span>Main Display</span><small>Projector / screen</small></button>
       </div>
     </section>
@@ -38,7 +39,7 @@
           <img class="hand-icon" src="/activation-hand.png" alt="" draggable="false">
           <span id="scan-copy">Hold to scan</span>
         </button>
-        <div class="ready-status"><div class="status-line"><span id="status-title">Awaiting handprint</span><b id="ready-count">0 / 3</b></div><div class="mini-progress"><i id="mini-progress-value"></i></div><p id="status-copy">Waiting for others: 0 of 3 ready</p></div>
+        <div class="ready-status"><div class="status-line"><span id="status-title">Awaiting handprint</span><b id="ready-count">0 / 4</b></div><div class="mini-progress"><i id="mini-progress-value"></i></div><p id="status-copy">Waiting for others: 0 of 4 ready</p></div>
       </div>
     </section>
 
@@ -51,15 +52,17 @@
         <div class="ceremony-system"><i></i> Ceremony system <b>•</b> Ready</div>
         <div class="guest-cards" id="guest-cards"></div>
         <div class="display-footer launch-loader">
-          <div class="secure-copy"><i class="secure-icon"></i><div><strong>Inauguration status</strong><small id="display-count">Waiting for all 3 handprints</small></div></div>
+          <div class="secure-copy"><i class="secure-icon"></i><div><strong>Inauguration status</strong><small id="display-count">Waiting for all 4 handprints</small></div></div>
           <div class="verification-track" aria-label="Guest handprint verification progress">
             <div class="verify-step" data-step="1"><i>01</i><span>Guest 1</span></div>
             <b></b>
             <div class="verify-step" data-step="2"><i>02</i><span>Guest 2</span></div>
             <b></b>
             <div class="verify-step" data-step="3"><i>03</i><span>Guest 3</span></div>
+            <b></b>
+            <div class="verify-step" data-step="4"><i>04</i><span>Guest 4</span></div>
           </div>
-          <div class="verified-total"><strong id="display-ratio">0 / 3</strong><small>Handprints verified</small></div>
+          <div class="verified-total"><strong id="display-ratio">0 / 4</strong><small>Handprints verified</small></div>
         </div>
       </div>
       <div class="reset-hint">Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> to reset</div>
@@ -99,7 +102,7 @@
         <h3>Non-Iron Garment<br>Dipping &amp; Washing Unit</h3>
         <p class="welcome-tagline">A new chapter in precision processing, quality finishing, and manufacturing excellence.</p>
         <div class="ceremony-confirmations">
-          <article><i>✓</i><span>3 Handprints Verified</span></article>
+          <article><i>✓</i><span>4 Handprints Verified</span></article>
           <article><i>✓</i><span>Unit Inaugurated</span></article>
           <article><i>✓</i><span>Ready for Operations</span></article>
         </div>
@@ -108,6 +111,6 @@
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/hold-controller.js"></script>
-  <script src="/script.js?v=guest-names-1"></script>
+  <script src="/script.js?v=four-guests-2"></script>
 </body>
 </html>

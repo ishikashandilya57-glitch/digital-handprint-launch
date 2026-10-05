@@ -14,16 +14,16 @@ const HOST = process.env.HOST || '0.0.0.0';
 const HOLD_DURATION_MS = 1000;
 const COUNTDOWN_LEAD_MS = 1800;
 const COUNTDOWN_DURATION_MS = 5000;
-const validSlots = new Set(['1', '2', '3']);
+const validSlots = new Set(['1', '2', '3', '4']);
 
 let ceremony = freshCeremony();
 
 function freshCeremony() {
   return {
     phase: 'waiting',
-    ready: { '1': false, '2': false, '3': false },
-    progress: { '1': 0, '2': 0, '3': 0 },
-    connected: { '1': false, '2': false, '3': false },
+    ready: { '1': false, '2': false, '3': false, '4': false },
+    progress: { '1': 0, '2': 0, '3': 0, '4': 0 },
+    connected: { '1': false, '2': false, '3': false, '4': false },
     countdownAt: null,
     revealAt: null
   };
@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
   }
 
   socket.on('role:register', (role) => {
-    if (!['guest-1', 'guest-2', 'guest-3', 'display'].includes(role)) return;
+    if (!['guest-1', 'guest-2', 'guest-3', 'guest-4', 'display'].includes(role)) return;
     socket.data.role = role;
     // A guest tablet refresh starts a fresh scan for that slot. Other guests'
     // independent verification state remains untouched.
@@ -155,11 +155,12 @@ io.on('connection', (socket) => {
 
   socket.on('admin:emergency-start', () => {
     if (socket.data.role !== 'display' || ceremony.phase !== 'waiting') return;
-    ceremony.ready = { '1': true, '2': true, '3': true };
-    ceremony.progress = { '1': 1, '2': 1, '3': 1 };
+    ceremony.ready = { '1': true, '2': true, '3': true, '4': true };
+    ceremony.progress = { '1': 1, '2': 1, '3': 1, '4': 1 };
     io.emit('hand:progress', { slot: '1', progress: 1 });
     io.emit('hand:progress', { slot: '2', progress: 1 });
     io.emit('hand:progress', { slot: '3', progress: 1 });
+    io.emit('hand:progress', { slot: '4', progress: 1 });
     broadcastState();
     const now = Date.now();
     ceremony.phase = 'countdown';

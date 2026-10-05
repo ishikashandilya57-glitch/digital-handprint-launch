@@ -20,7 +20,7 @@ Open `http://localhost:3000` on the server computer. The server listens on all n
    - macOS: **System Settings → Wi-Fi → Details**, or run `ipconfig getifaddr en0`
    - Windows: run `ipconfig` and find the Wi-Fi adapter's IPv4 address
 3. On every device, open `http://YOUR_LOCAL_IP:3000` (for example, `http://192.168.1.25:3000`).
-4. Choose Guest 1, Guest 2, Guest 3, or Main Display. The role is retained for refreshes in that browser tab.
+4. Choose Guest 1, Guest 2, Guest 3, Guest 4, or Main Display. The role is retained for refreshes in that browser tab.
 5. Ensure the host computer's firewall permits incoming connections to Node.js/port 3000.
 
 For devices on different networks, expose port 3000 through a trusted tunnel such as ngrok:
@@ -34,7 +34,7 @@ Open the HTTPS forwarding URL ngrok provides on all four devices. For a public d
 ## Ceremony operation
 
 - Each guest presses and holds the scanner for 2 seconds. Releasing early resets the scan.
-- When all three handprints are verified, the server sends one timestamped countdown timeline to every screen.
+- When all four handprints are verified, the server sends one timestamped countdown timeline to every screen.
 - On the Main Display, press **Ctrl+Shift+R** to reset all devices for rehearsal.
 - Alternatively, visit `http://SERVER:3000/reset` or send `POST /reset`.
 

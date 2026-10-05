@@ -12,11 +12,12 @@ test.beforeEach(() => resetCeremony());
 function connect(role) { return new Promise(resolve => { const socket = createClient(`http://127.0.0.1:${port}`, { transports: ['websocket'] }); socket.on('connect', () => { socket.emit('role:register', role); resolve(socket); }); }); }
 
 test('simultaneous guest holds launch one synchronized timeline for all devices', async () => {
-  const sockets = await Promise.all(['guest-1','guest-2','guest-3','display'].map(connect));
+  const sockets = await Promise.all(['guest-1','guest-2','guest-3','guest-4','display'].map(connect));
   const launches = sockets.map(socket => new Promise(resolve => socket.once('launch:countdown', resolve)));
   sockets[0].emit('hand:ready', { slot: '1' });
   sockets[1].emit('hand:ready', { slot: '2' });
   sockets[2].emit('hand:ready', { slot: '3' });
+  sockets[3].emit('hand:ready', { slot: '4' });
   const states = await Promise.all(launches);
   assert.equal(new Set(states.map(s => s.countdownAt)).size, 1);
   assert.equal(new Set(states.map(s => s.revealAt)).size, 1);

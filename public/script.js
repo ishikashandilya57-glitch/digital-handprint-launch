@@ -21,8 +21,8 @@
   let ceremonyStage = 'loading';
   let currentVideoRun = null;
   let lastProgressSent = -1;
-  const guestProgress = { '1': 0, '2': 0, '3': 0 };
-  const guestNames = { '1': 'Nick Wheeler', '2': 'Guillaume Dalais', '3': 'Eric Dorchies' };
+  const guestProgress = { '1': 0, '2': 0, '3': 0, '4': 0 };
+  const guestNames = { '1': 'Nick Keyte', '2': 'Guillaume Dalais', '3': 'Eric Dorchies', '4': 'Maneesh Patel' };
   const activePointers = new Set();
   let touchActive = false;
   let lastTouchEventAt = 0;
@@ -94,7 +94,7 @@
   }
   function renderGuestCards() {
     if (!state) return;
-    document.getElementById('guest-cards').innerHTML = ['1','2','3'].map(slot => {
+    document.getElementById('guest-cards').innerHTML = ['1','2','3','4'].map(slot => {
       const ready = state.ready[slot], connected = state.connected[slot];
       let copy = ready ? 'Handprint verified' : 'Waiting for handprint';
       const progress = ready ? 1 : (state.progress?.[slot] ?? guestProgress[slot]);
@@ -115,12 +115,13 @@
       document.getElementById('display-heading').innerHTML = 'Awaiting <em>inauguration</em>';
       document.getElementById('display-subtitle').textContent = '';
       renderGuestCards();
-      document.getElementById('display-count').textContent = count === 3 ? 'All handprints verified' : count === 0 ? 'Waiting for all 3 handprints' : `Waiting for ${3 - count} more handprint${3 - count === 1 ? '' : 's'}`;
-      document.getElementById('display-ratio').textContent = `${count} / 3`;
+      document.getElementById('display-count').textContent = count === 4 ? 'All handprints verified' : count === 0 ? 'Waiting for all 4 handprints' : `Waiting for ${4 - count} more handprint${4 - count === 1 ? '' : 's'}`;
+      document.getElementById('display-ratio').textContent = `${count} / 4`;
       document.querySelectorAll('.verify-step').forEach(step => step.classList.toggle('verified', state.ready[step.dataset.step]));
       const lines = document.querySelectorAll('.verification-track>b');
       lines[0]?.classList.toggle('verified', state.ready['1']);
       lines[1]?.classList.toggle('verified', state.ready['1'] && state.ready['2']);
+      lines[2]?.classList.toggle('verified', state.ready['1'] && state.ready['2'] && state.ready['3']);
     } else {
       const ownReady = state.ready[role.slice(-1)];
       if (ownReady) {
@@ -129,10 +130,10 @@
         ring.style.strokeDashoffset = '0';
         document.getElementById('scan-copy').textContent = 'Handprint verified';
       }
-      document.getElementById('ready-count').textContent = `${count} / 3`;
-      document.getElementById('mini-progress-value').style.width = `${count / 3 * 100}%`;
+      document.getElementById('ready-count').textContent = `${count} / 4`;
+      document.getElementById('mini-progress-value').style.width = `${count / 4 * 100}%`;
       document.getElementById('status-title').textContent = ownReady ? 'Handprint locked' : 'Awaiting handprint';
-      document.getElementById('status-copy').textContent = `Waiting for others: ${count} of 3 ready`;
+      document.getElementById('status-copy').textContent = `Waiting for others: ${count} of 4 ready`;
       if (emergencyStart) emergencyStart.disabled = ownReady;
     }
   }
