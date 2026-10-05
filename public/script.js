@@ -1,12 +1,13 @@
 (() => {
   'use strict';
   const socket = io();
-  const screens = ['role-screen', 'guest-screen', 'display-screen', 'video-screen', 'final-black-screen', 'countdown-screen', 'reveal-screen'];
+  const screens = ['role-screen', 'guest-screen', 'display-screen', 'opening-screen', 'final-black-screen', 'countdown-screen', 'reveal-screen'];
   const els = Object.fromEntries(screens.map(id => [id, document.getElementById(id)]));
   const scanner = document.getElementById('scanner');
   const guestScreen = document.getElementById('guest-screen');
   const ring = document.getElementById('progress-ring');
   const introVideo = document.getElementById('inauguration-video');
+  const openCurtainButton = document.getElementById('open-curtain');
   const emergencyStart = document.getElementById('emergency-start');
   const displayEmergencyStart = document.getElementById('display-emergency-start');
   const circumference = 2 * Math.PI * 140;
@@ -15,11 +16,13 @@
   let state = null;
   let clockOffset = 0;
   let phaseTimer = 0;
+  let curtainTimer = 0;
   let revealed = false;
   let ceremonyStage = 'loading';
   let currentVideoRun = null;
   let lastProgressSent = -1;
   const guestProgress = { '1': 0, '2': 0, '3': 0 };
+  const guestNames = { '1': 'Nick Wheeler', '2': 'Guillaume Dalais', '3': 'Eric Dorchies' };
   const activePointers = new Set();
   let touchActive = false;
   let lastTouchEventAt = 0;
@@ -52,14 +55,23 @@
   function chooseRole(next) {
     role = next;
     sessionStorage.setItem('ceremonyRole', role);
-    if (role === 'display' && (!state || state.phase === 'waiting')) primeVideoPlayback();
     registerRole();
     renderBase();
     if (state) renderState();
+    if (role === 'display' && (!state || state.phase === 'waiting')) startOpeningSequence();
   }
   function clearRole() {
     sessionStorage.removeItem('ceremonyRole');
+    sessionStorage.removeItem('ceremonyVideoState');
     role = null;
+    ceremonyStage = 'loading';
+    currentVideoRun = null;
+    introVideo.pause();
+    introVideo.currentTime = 0;
+    introVideo.muted = false;
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
+    clearTimeout(phaseTimer);
+    clearTimeout(curtainTimer);
     clearTimeout(releaseTimer);
     activePointers.clear();
     touchActive = false;
@@ -73,7 +85,8 @@
       renderGuestCards();
     } else {
       show('guest-screen');
-      document.getElementById('guest-label').textContent = `Guest ${role.slice(-1)} ceremony tablet`;
+      const slot = role.slice(-1);
+      document.getElementById('guest-label').textContent = `Guest ${slot} · ${guestNames[slot]}`;
     }
   }
   function handSvg() {
@@ -85,7 +98,7 @@
       const ready = state.ready[slot], connected = state.connected[slot];
       let copy = ready ? 'Handprint verified' : 'Waiting for handprint';
       const progress = ready ? 1 : (state.progress?.[slot] ?? guestProgress[slot]);
-      return `<article class="guest-card ${ready ? 'ready' : ''} ${progress > 0 ? 'scanning' : ''} ${connected ? '' : 'offline'}" data-slot="${slot}"><b class="guest-number">0${slot}</b><div class="hand-hud" style="--scan-progress:${progress * 360}deg"><span class="particle-field"></span><span class="biometric-sweep"></span><img class="tiny-hand" src="/activation-hand.png" alt="" draggable="false"></div><h3>Guest ${slot}</h3><p><i></i>${progress > 0 && !ready ? `Biometric scan ${Math.round(progress * 100)}%` : copy}</p></article>`;
+      return `<article class="guest-card ${ready ? 'ready' : ''} ${progress > 0 ? 'scanning' : ''} ${connected ? '' : 'offline'}" data-slot="${slot}"><b class="guest-number">0${slot}</b><div class="hand-hud" style="--scan-progress:${progress * 360}deg"><span class="particle-field"></span><span class="biometric-sweep"></span><img class="tiny-hand" src="/activation-hand.png" alt="" draggable="false"></div><h3>${guestNames[slot]}</h3><p><i></i>${progress > 0 && !ready ? `Biometric scan ${Math.round(progress * 100)}%` : copy}</p></article>`;
     }).join('');
   }
   function renderState() {
@@ -93,6 +106,7 @@
     if (state.progress) Object.keys(guestProgress).forEach(slot => { guestProgress[slot] = state.progress[slot] || 0; });
     if (state.phase === 'countdown') return runTimeline();
     if (state.phase === 'reveal') return showFinalBlack();
+    if (role === 'display' && ['opening', 'introVideo'].includes(ceremonyStage)) return;
     renderBase();
     const count = Object.values(state.ready).filter(Boolean).length;
     if (role === 'display') {
@@ -130,32 +144,51 @@
   function saveVideoState(stage, runId, startedAt) {
     sessionStorage.setItem('ceremonyVideoState', JSON.stringify({ stage, runId, startedAt }));
   }
-  function primeVideoPlayback() {
-    introVideo.muted = true;
-    const attempt = introVideo.play();
-    if (attempt?.then) attempt.then(() => {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-      introVideo.muted = false;
-    }).catch(() => { introVideo.muted = false; });
+  function showMainDisplay(persist = true) {
+    ceremonyStage = 'display';
+    introVideo.pause();
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
+    show('display-screen');
+    if (persist && currentVideoRun) saveVideoState('ended', currentVideoRun, null);
+    if (state) renderState();
+  }
+  function startOpeningSequence() {
+    const runId = 'pre-display-intro';
+    const saved = getSavedVideoState();
+    currentVideoRun = runId;
+    if (saved?.runId === runId && saved.stage === 'ended') return showMainDisplay(false);
+    if (ceremonyStage === 'opening' || ceremonyStage === 'introVideo') return;
+
+    ceremonyStage = 'opening';
+    show('opening-screen');
+    els['opening-screen'].classList.remove('curtain-opening');
+    clearTimeout(phaseTimer);
+    clearTimeout(curtainTimer);
+    openCurtainButton.disabled = false;
+  }
+  function openCurtain() {
+    if (ceremonyStage !== 'opening' || els['opening-screen'].classList.contains('curtain-opening')) return;
+    openCurtainButton.disabled = true;
+    els['opening-screen'].classList.add('curtain-opening');
+    startIntroVideo();
   }
   function showFinalBlack(persist = true) {
     ceremonyStage = 'finalBlack';
     introVideo.pause();
-    els['video-screen'].classList.remove('playing');
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
     show('final-black-screen');
     if (persist && currentVideoRun) saveVideoState('ended', currentVideoRun, null);
   }
   function startIntroVideo() {
-    const runId = String(state?.countdownAt || state?.revealAt || 'current-launch');
+    const runId = 'pre-display-intro';
     const saved = getSavedVideoState();
     currentVideoRun = runId;
-    if (saved?.runId === runId && saved.stage === 'ended') return showFinalBlack(false);
+    if (saved?.runId === runId && saved.stage === 'ended') return showMainDisplay(false);
     if (ceremonyStage === 'introVideo' && !introVideo.paused) return;
 
     ceremonyStage = 'introVideo';
-    show('video-screen');
-    els['video-screen'].classList.remove('playing');
+    show('opening-screen');
+    els['opening-screen'].classList.add('video-playing');
     introVideo.controls = false;
     introVideo.loop = false;
     introVideo.muted = false;
@@ -166,20 +199,20 @@
     const beginPlayback = async () => {
       if (ceremonyStage !== 'introVideo' || currentVideoRun !== runId) return;
       const elapsed = Math.max(0, (Date.now() - startedAt) / 1000);
-      if (Number.isFinite(introVideo.duration) && elapsed >= introVideo.duration) return showFinalBlack();
+      if (Number.isFinite(introVideo.duration) && elapsed >= introVideo.duration) return showMainDisplay();
       if (elapsed > .25 && Number.isFinite(introVideo.duration)) introVideo.currentTime = Math.min(elapsed, Math.max(0, introVideo.duration - .15));
       try {
         await introVideo.play();
-        els['video-screen'].classList.add('playing');
+        els['opening-screen'].classList.add('video-playing');
       } catch (audioError) {
         console.error('Inauguration video autoplay with audio was blocked; retrying muted.', audioError);
         introVideo.muted = true;
         try {
           await introVideo.play();
-          els['video-screen'].classList.add('playing');
+          els['opening-screen'].classList.add('video-playing');
         } catch (videoError) {
           console.error('Inauguration video could not be played.', videoError);
-          showFinalBlack();
+          showMainDisplay();
         }
       }
     };
@@ -189,8 +222,7 @@
   }
   function runTimeline() {
     clearTimeout(phaseTimer);
-    if (role === 'display') startIntroVideo();
-    else showFinalBlack(false);
+    showFinalBlack(role === 'display');
   }
   function showReveal() {
     clearTimeout(phaseTimer);
@@ -212,6 +244,7 @@
   }
   function resetClient(nextState) {
     clearTimeout(phaseTimer);
+    clearTimeout(curtainTimer);
     clearTimeout(releaseTimer);
     state = nextState;
     revealed = false;
@@ -224,7 +257,7 @@
     introVideo.pause();
     introVideo.currentTime = 0;
     introVideo.muted = false;
-    els['video-screen'].classList.remove('playing');
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
     sessionStorage.removeItem('ceremonyVideoState');
     hold.reset();
     scanner.classList.remove('ready', 'holding');
@@ -238,6 +271,7 @@
 
   document.querySelectorAll('[data-role]').forEach(btn => btn.addEventListener('click', () => chooseRole(btn.dataset.role)));
   document.querySelectorAll('[data-change-role]').forEach(btn => btn.addEventListener('click', clearRole));
+  openCurtainButton.addEventListener('click', openCurtain);
   emergencyStart?.addEventListener('click', event => {
     event.preventDefault();
     if (hold.completed) return;
@@ -359,11 +393,11 @@
     if (role === 'display') renderState();
   });
   socket.on('ceremony:reset', resetClient);
-  introVideo.addEventListener('ended', () => showFinalBlack());
+  introVideo.addEventListener('ended', () => showMainDisplay());
   introVideo.addEventListener('error', () => {
     if (ceremonyStage !== 'introVideo') return;
     console.error('Inauguration video failed to load or decode.', introVideo.error);
-    showFinalBlack();
+    showMainDisplay();
   });
   ring.style.strokeDasharray = String(circumference);
   ring.style.strokeDashoffset = String(circumference);

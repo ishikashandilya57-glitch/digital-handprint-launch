@@ -19,9 +19,9 @@
       <h1>Ceremonial Handprint<br><em>Launch</em></h1>
       <p class="lead">Non-Iron Garment Dipping &amp; Washing Unit Inauguration</p>
       <div class="role-grid">
-        <button class="role-card" data-role="guest-1"><b>01</b><span>Guest 1</span><small>Handprint scanner</small></button>
-        <button class="role-card" data-role="guest-2"><b>02</b><span>Guest 2</span><small>Handprint scanner</small></button>
-        <button class="role-card" data-role="guest-3"><b>03</b><span>Guest 3</span><small>Handprint scanner</small></button>
+        <button class="role-card" data-role="guest-1"><b>01</b><span>Guest 1</span><small>Nick Wheeler</small></button>
+        <button class="role-card" data-role="guest-2"><b>02</b><span>Guest 2</span><small>Guillaume Dalais</small></button>
+        <button class="role-card" data-role="guest-3"><b>03</b><span>Guest 3</span><small>Eric Dorchies</small></button>
         <button class="role-card display-card" data-role="display"><b>◈</b><span>Main Display</span><small>Projector / screen</small></button>
       </div>
     </section>
@@ -65,14 +65,23 @@
       <div class="reset-hint">Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> to reset</div>
     </section>
 
-    <section id="video-screen" class="screen video-screen hidden" aria-label="Inauguration film">
+    <section id="opening-screen" class="screen opening-screen hidden" aria-label="Waiting for inauguration">
       <video id="inauguration-video" preload="auto" playsinline disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen">
-        <source src="/assets/inauguration-intro.mp4" type="video/mp4">
+        <source src="/assets/inauguration-intro.mp4?v=download-1" type="video/mp4">
       </video>
+      <div class="opening-copy">
+        <div class="eyebrow"><span></span> Laguna India <span></span></div>
+        <h2>Awaiting the<br><em>inauguration</em></h2>
+        <p>The ceremony will begin shortly</p>
+        <div class="opening-pulse"><i></i><span>System ready</span></div>
+        <button id="open-curtain" class="open-curtain" type="button">Click to begin</button>
+      </div>
+      <div class="curtain curtain-left"></div>
+      <div class="curtain curtain-right"></div>
     </section>
 
-    <section id="final-black-screen" class="screen final-black-screen hidden" aria-label="Welcome to Dip and Bake Facility, Laguna India">
-      <img src="/dip-bake-facility-welcome.png" alt="Welcome to Dip &amp; Bake Facility, Laguna India — Powered by Digital Innovation">
+    <section id="final-black-screen" class="screen final-black-screen hidden" aria-label="Digital Innovation Inauguration poster">
+      <img src="/digital-innovation-inauguration-poster.png?v=2" alt="Digital Innovation Inauguration — Dip &amp; Bake Facility, Laguna India — 8 October 2026">
     </section>
 
     <section id="countdown-screen" class="screen overlay hidden">
@@ -99,6 +108,6 @@
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/hold-controller.js"></script>
-  <script src="/script.js?v=hold-1000-11"></script>
+  <script src="/script.js?v=guest-names-1"></script>
 </body>
 </html>
