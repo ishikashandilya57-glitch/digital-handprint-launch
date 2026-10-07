@@ -35,6 +35,7 @@
   let lastTouchEventAt = 0;
   let lastNonTouchUpAt = 0;
   let releaseTimer = 0;
+  let initialStateReceived = false;
 
   function preloadVideo(key) {
     return fetch(videoAssets[key], { cache: 'force-cache' })
@@ -431,7 +432,21 @@
   });
   socket.on('connect', () => { registerRole(); document.getElementById('connection-copy').textContent = 'Scanner online'; });
   socket.on('disconnect', () => { document.getElementById('connection-copy').textContent = 'Reconnecting…'; });
-  socket.on('ceremony:state', next => { state = next; clockOffset = next.serverNow - Date.now(); renderState(); });
+  socket.on('ceremony:state', next => {
+    const isInitialState = !initialStateReceived;
+    initialStateReceived = true;
+    state = next;
+    clockOffset = next.serverNow - Date.now();
+    // Refreshing the Main Display after a completed launch starts a clean
+    // rehearsal instead of restoring the final poster forever.
+    if (isInitialState && role === 'display' && next.phase !== 'waiting') {
+      sessionStorage.removeItem('ceremonyVideoState');
+      socket.emit('admin:reset');
+      startOpeningSequence();
+      return;
+    }
+    renderState();
+  });
   socket.on('launch:countdown', next => { state = next; clockOffset = next.serverNow - Date.now(); runTimeline(); });
   socket.on('hand:progress', ({ slot, progress }) => {
     guestProgress[String(slot)] = Math.max(0, Math.min(1, Number(progress) || 0));
