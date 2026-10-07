@@ -30,7 +30,7 @@
   let releaseTimer = 0;
 
   const hold = new HoldController({
-    duration: 1000,
+    duration: 750,
     onProgress(progress) {
       ring.style.strokeDashoffset = String(circumference * (1 - progress));
       document.getElementById('scan-copy').textContent = progress ? `Scanning ${Math.round(progress * 100)}%` : 'Hold to scan';
@@ -290,6 +290,9 @@
     if (hold.completed || !role?.startsWith('guest-')) return;
     clearTimeout(releaseTimer);
     scanner.classList.add('holding');
+    document.getElementById('scan-copy').textContent = 'Scanning 0%';
+    document.getElementById('status-title').textContent = 'Scanning handprint';
+    document.getElementById('status-copy').textContent = 'Keep your palm on the scanner';
     hold.start();
     socket.emit('hand:hold-start', { slot: role.slice(-1) });
   }
@@ -336,13 +339,13 @@
     lastTouchEventAt = Date.now();
     touchActive = false;
     activePointers.clear();
-    stopHandHold();
+    // Once a tablet has registered the palm, let the short scan finish. Some
+    // touchscreens report an early touchend/cancel while a full palm settles.
   }, { passive: false });
   scanner.addEventListener('touchcancel', () => {
     lastTouchEventAt = Date.now();
     touchActive = false;
     activePointers.clear();
-    stopHandHold();
   }, { passive: false });
   guestScreen.addEventListener('pointerdown', event => {
     if (event.pointerType !== 'touch' || hold.completed || event.target.closest('button:not(#scanner)')) return;
@@ -362,7 +365,6 @@
   guestScreen.addEventListener('touchend', event => {
     if (event.touches.length === 0) {
       touchActive = false;
-      stopHandHold();
     }
   }, { capture: true, passive: false });
   scanner.addEventListener('click', () => {

@@ -11,7 +11,7 @@ const io = new Server(server, { serveClient: true });
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
-const HOLD_DURATION_MS = 1000;
+const HOLD_DURATION_MS = 750;
 const COUNTDOWN_LEAD_MS = 1800;
 const COUNTDOWN_DURATION_MS = 5000;
 const validSlots = new Set(['1', '2', '3', '4']);
@@ -99,12 +99,11 @@ io.on('connection', (socket) => {
   socket.on('role:register', (role) => {
     if (!['guest-1', 'guest-2', 'guest-3', 'guest-4', 'display'].includes(role)) return;
     socket.data.role = role;
-    // A guest tablet refresh starts a fresh scan for that slot. Other guests'
-    // independent verification state remains untouched.
+    // Preserve a completed scan across a transient Wi-Fi reconnect/refresh.
+    // Only clear incomplete progress when this slot registers again.
     if (role.startsWith('guest-') && ceremony.phase === 'waiting') {
       const slot = role.slice(-1);
-      ceremony.ready[slot] = false;
-      ceremony.progress[slot] = 0;
+      if (!ceremony.ready[slot]) ceremony.progress[slot] = 0;
       clearTimeout(socket.data.holdTimer);
       socket.data.holdTimer = null;
       socket.data.holdSlot = null;
@@ -137,7 +136,7 @@ io.on('connection', (socket) => {
     const elapsed = Date.now() - (socket.data.holdStartedAt || 0);
     // A lift right at the completion edge can arrive before the timer callback.
     // Treat a nearly-complete hold as successful instead of cancelling it.
-    if (elapsed >= HOLD_DURATION_MS - 150 || ceremony.progress[String(slot)] >= 0.9) {
+    if (elapsed >= HOLD_DURATION_MS - 120 || ceremony.progress[String(slot)] >= 0.9) {
       clearTimeout(socket.data.holdTimer);
       socket.data.holdTimer = null;
       socket.data.holdSlot = null;

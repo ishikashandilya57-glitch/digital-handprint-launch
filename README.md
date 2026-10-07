@@ -33,7 +33,7 @@ Open the HTTPS forwarding URL ngrok provides on all four devices. For a public d
 
 ## Ceremony operation
 
-- Each guest presses and holds the scanner for 2 seconds. Releasing early resets the scan.
+- Each guest touches the scanner. Feedback appears immediately and verification completes in under a second.
 - When all four handprints are verified, the server sends one timestamped countdown timeline to every screen.
 - On the Main Display, press **Ctrl+Shift+R** to reset all devices for rehearsal.
 - Alternatively, visit `http://SERVER:3000/reset` or send `POST /reset`.
