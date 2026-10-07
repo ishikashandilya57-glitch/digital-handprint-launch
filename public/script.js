@@ -288,6 +288,7 @@
     ring.style.strokeDashoffset = String(circumference);
     renderBase();
     renderState();
+    if (role === 'display' && state?.phase === 'waiting') startOpeningSequence();
   }
 
   document.querySelectorAll('[data-role]').forEach(btn => btn.addEventListener('click', () => chooseRole(btn.dataset.role)));
@@ -429,4 +430,5 @@
   ring.style.strokeDasharray = String(circumference);
   ring.style.strokeDashoffset = String(circumference);
   renderBase();
+  if (role === 'display') startOpeningSequence();
 })();
