@@ -20,6 +20,7 @@
   let revealed = false;
   let ceremonyStage = 'loading';
   let currentVideoRun = null;
+  let videoPurpose = null;
   let lastProgressSent = -1;
   const guestProgress = { '1': 0, '2': 0, '3': 0, '4': 0 };
   const guestNames = { '1': 'Nick Keyte', '2': 'Guillaume Dalais', '3': 'Eric Dorchies', '4': 'Maneesh Patel' };
@@ -166,16 +167,27 @@
     if (ceremonyStage !== 'opening' || els['opening-screen'].classList.contains('curtain-opening')) return;
     openCurtainButton.disabled = true;
     els['opening-screen'].classList.add('curtain-opening');
-    // Prime media playback from this user gesture so the inauguration video
-    // can start reliably later when the fourth handprint arrives.
-    introVideo.muted = true;
+    playOpeningVideo();
+  }
+  function setVideoSource(src) {
+    const source = introVideo.querySelector('source');
+    if (source.getAttribute('src') === src) return;
+    source.setAttribute('src', src);
+    introVideo.load();
+  }
+  function playOpeningVideo() {
+    videoPurpose = 'opening';
+    ceremonyStage = 'introVideo';
+    setVideoSource('/assets/inauguration-intro.mp4?v=download-1');
+    show('opening-screen');
+    els['opening-screen'].classList.add('video-playing');
+    introVideo.currentTime = 0;
+    introVideo.muted = false;
     const attempt = introVideo.play();
-    if (attempt?.then) attempt.then(() => {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-      introVideo.muted = false;
-    }).catch(() => { introVideo.muted = false; });
-    curtainTimer = setTimeout(showMainDisplay, 3350);
+    if (attempt?.catch) attempt.catch(() => {
+      introVideo.muted = true;
+      introVideo.play().catch(showMainDisplay);
+    });
   }
   function showFinalBlack(persist = true) {
     ceremonyStage = 'finalBlack';
@@ -191,8 +203,11 @@
     if (saved?.runId === runId && saved.stage === 'ended') return showFinalBlack(false);
     if (ceremonyStage === 'introVideo' && !introVideo.paused) return;
 
+    videoPurpose = 'final';
     ceremonyStage = 'introVideo';
+    setVideoSource('/assets/final-inauguration.mp4?v=show-final-1');
     show('opening-screen');
+    els['opening-screen'].classList.remove('curtain-opening');
     els['opening-screen'].classList.add('video-playing');
     introVideo.controls = false;
     introVideo.loop = false;
@@ -401,11 +416,15 @@
     if (role === 'display') renderState();
   });
   socket.on('ceremony:reset', resetClient);
-  introVideo.addEventListener('ended', () => showFinalBlack());
+  introVideo.addEventListener('ended', () => {
+    if (videoPurpose === 'opening') showMainDisplay();
+    else showFinalBlack();
+  });
   introVideo.addEventListener('error', () => {
     if (ceremonyStage !== 'introVideo') return;
     console.error('Inauguration video failed to load or decode.', introVideo.error);
-    showFinalBlack();
+    if (videoPurpose === 'opening') showMainDisplay();
+    else showFinalBlack();
   });
   ring.style.strokeDasharray = String(circumference);
   ring.style.strokeDashoffset = String(circumference);
