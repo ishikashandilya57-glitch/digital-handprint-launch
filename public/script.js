@@ -70,7 +70,7 @@
     introVideo.pause();
     introVideo.currentTime = 0;
     introVideo.muted = false;
-    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing', 'final-video');
     clearTimeout(phaseTimer);
     clearTimeout(curtainTimer);
     clearTimeout(releaseTimer);
@@ -158,7 +158,7 @@
 
     ceremonyStage = 'opening';
     show('opening-screen');
-    els['opening-screen'].classList.remove('curtain-opening');
+    els['opening-screen'].classList.remove('curtain-opening', 'final-video');
     clearTimeout(phaseTimer);
     clearTimeout(curtainTimer);
     openCurtainButton.disabled = false;
@@ -192,7 +192,7 @@
   function showFinalBlack(persist = true) {
     ceremonyStage = 'finalBlack';
     introVideo.pause();
-    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing', 'final-video');
     show('final-black-screen');
     if (persist && currentVideoRun) saveVideoState('ended', currentVideoRun, null);
   }
@@ -208,7 +208,7 @@
     setVideoSource('/assets/final-inauguration.mp4?v=show-final-1');
     show('opening-screen');
     els['opening-screen'].classList.remove('curtain-opening');
-    els['opening-screen'].classList.add('video-playing');
+    els['opening-screen'].classList.add('video-playing', 'final-video');
     introVideo.controls = false;
     introVideo.loop = false;
     introVideo.muted = false;
@@ -278,7 +278,7 @@
     introVideo.pause();
     introVideo.currentTime = 0;
     introVideo.muted = false;
-    els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
+    els['opening-screen'].classList.remove('curtain-opening', 'video-playing', 'final-video');
     sessionStorage.removeItem('ceremonyVideoState');
     hold.reset();
     scanner.classList.remove('ready', 'holding');

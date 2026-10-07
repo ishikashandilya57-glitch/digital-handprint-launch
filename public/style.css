@@ -505,6 +505,7 @@ body:after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;backg
 .opening-screen.curtain-opening .open-curtain{opacity:0;transform:translateY(8px);pointer-events:none}
 .opening-screen.curtain-opening .curtain-left{animation:curtain-open-left 3.35s cubic-bezier(.62,0,.18,1) forwards}
 .opening-screen.curtain-opening .curtain-right{animation:curtain-open-right 3.35s cubic-bezier(.62,0,.18,1) forwards}
+.opening-screen.final-video .curtain,.opening-screen.final-video .opening-copy{display:none}
 @keyframes curtain-open-left{0%{transform:translateX(0) scaleX(1);filter:brightness(1)}22%{transform:translateX(-4%) scaleX(.98);filter:brightness(1.08)}58%{transform:translateX(-48%) scaleX(.86);filter:brightness(.93)}82%{transform:translateX(-87%) scaleX(.72);filter:brightness(.82)}100%{transform:translateX(-103%) scaleX(.64);filter:brightness(.72)}}
 @keyframes curtain-open-right{0%{transform:translateX(0) scaleX(1);filter:brightness(1)}22%{transform:translateX(4%) scaleX(.98);filter:brightness(1.08)}58%{transform:translateX(48%) scaleX(.86);filter:brightness(.93)}82%{transform:translateX(87%) scaleX(.72);filter:brightness(.82)}100%{transform:translateX(103%) scaleX(.64);filter:brightness(.72)}}
 .final-black-screen{position:fixed;z-index:100;inset:0;display:block;width:100vw;height:100vh;min-height:100vh;padding:0;margin:0;overflow:hidden;background:#000}
