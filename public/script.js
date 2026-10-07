@@ -12,6 +12,12 @@
   const displayEmergencyStart = document.getElementById('display-emergency-start');
   const circumference = 2 * Math.PI * 140;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const videoAssets = {
+    opening: '/assets/inauguration-intro.mp4?v=download-1',
+    final: '/assets/final-inauguration.mp4?v=show-final-1'
+  };
+  const cachedVideoUrls = {};
+  const videoPreloadSettled = { opening: false, final: false };
   let role = sessionStorage.getItem('ceremonyRole');
   let state = null;
   let clockOffset = 0;
@@ -29,6 +35,27 @@
   let lastTouchEventAt = 0;
   let lastNonTouchUpAt = 0;
   let releaseTimer = 0;
+
+  function preloadVideo(key) {
+    return fetch(videoAssets[key], { cache: 'force-cache' })
+      .then(response => {
+        if (!response.ok) throw new Error(`Video preload failed: ${response.status}`);
+        return response.blob();
+      })
+      .then(blob => { cachedVideoUrls[key] = URL.createObjectURL(blob); })
+      .catch(error => console.warn(`${key} video will use streaming fallback.`, error))
+      .finally(() => {
+        videoPreloadSettled[key] = true;
+        if (key === 'opening' && ceremonyStage === 'opening') {
+          openCurtainButton.disabled = false;
+          openCurtainButton.textContent = 'Click to begin';
+        }
+      });
+  }
+  const videoPreloads = {
+    opening: preloadVideo('opening'),
+    final: preloadVideo('final')
+  };
 
   const hold = new HoldController({
     duration: 750,
@@ -161,7 +188,8 @@
     els['opening-screen'].classList.remove('curtain-opening', 'final-video');
     clearTimeout(phaseTimer);
     clearTimeout(curtainTimer);
-    openCurtainButton.disabled = false;
+    openCurtainButton.disabled = !videoPreloadSettled.opening;
+    openCurtainButton.textContent = videoPreloadSettled.opening ? 'Click to begin' : 'Loading video…';
   }
   function openCurtain() {
     if (ceremonyStage !== 'opening' || els['opening-screen'].classList.contains('curtain-opening')) return;
@@ -178,7 +206,7 @@
   function playOpeningVideo() {
     videoPurpose = 'opening';
     ceremonyStage = 'introVideo';
-    setVideoSource('/assets/inauguration-intro.mp4?v=download-1');
+    setVideoSource(cachedVideoUrls.opening || videoAssets.opening);
     show('opening-screen');
     els['opening-screen'].classList.add('video-playing');
     introVideo.currentTime = 0;
@@ -205,7 +233,7 @@
 
     videoPurpose = 'final';
     ceremonyStage = 'introVideo';
-    setVideoSource('/assets/final-inauguration.mp4?v=show-final-1');
+    setVideoSource(cachedVideoUrls.final || videoAssets.final);
     show('opening-screen');
     els['opening-screen'].classList.remove('curtain-opening');
     els['opening-screen'].classList.add('video-playing', 'final-video');
