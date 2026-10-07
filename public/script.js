@@ -145,20 +145,15 @@
   function saveVideoState(stage, runId, startedAt) {
     sessionStorage.setItem('ceremonyVideoState', JSON.stringify({ stage, runId, startedAt }));
   }
-  function showMainDisplay(persist = true) {
+  function showMainDisplay() {
     ceremonyStage = 'display';
     introVideo.pause();
     els['opening-screen'].classList.remove('curtain-opening', 'video-playing');
     show('display-screen');
-    if (persist && currentVideoRun) saveVideoState('ended', currentVideoRun, null);
     if (state) renderState();
   }
   function startOpeningSequence() {
-    const runId = 'pre-display-intro';
-    const saved = getSavedVideoState();
-    currentVideoRun = runId;
-    if (saved?.runId === runId && saved.stage === 'ended') return showMainDisplay(false);
-    if (ceremonyStage === 'opening' || ceremonyStage === 'introVideo') return;
+    if (ceremonyStage === 'opening') return;
 
     ceremonyStage = 'opening';
     show('opening-screen');
@@ -171,7 +166,16 @@
     if (ceremonyStage !== 'opening' || els['opening-screen'].classList.contains('curtain-opening')) return;
     openCurtainButton.disabled = true;
     els['opening-screen'].classList.add('curtain-opening');
-    startIntroVideo();
+    // Prime media playback from this user gesture so the inauguration video
+    // can start reliably later when the fourth handprint arrives.
+    introVideo.muted = true;
+    const attempt = introVideo.play();
+    if (attempt?.then) attempt.then(() => {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+      introVideo.muted = false;
+    }).catch(() => { introVideo.muted = false; });
+    curtainTimer = setTimeout(showMainDisplay, 3350);
   }
   function showFinalBlack(persist = true) {
     ceremonyStage = 'finalBlack';
@@ -181,10 +185,10 @@
     if (persist && currentVideoRun) saveVideoState('ended', currentVideoRun, null);
   }
   function startIntroVideo() {
-    const runId = 'pre-display-intro';
+    const runId = String(state?.countdownAt || state?.revealAt || 'current-launch');
     const saved = getSavedVideoState();
     currentVideoRun = runId;
-    if (saved?.runId === runId && saved.stage === 'ended') return showMainDisplay(false);
+    if (saved?.runId === runId && saved.stage === 'ended') return showFinalBlack(false);
     if (ceremonyStage === 'introVideo' && !introVideo.paused) return;
 
     ceremonyStage = 'introVideo';
@@ -200,7 +204,7 @@
     const beginPlayback = async () => {
       if (ceremonyStage !== 'introVideo' || currentVideoRun !== runId) return;
       const elapsed = Math.max(0, (Date.now() - startedAt) / 1000);
-      if (Number.isFinite(introVideo.duration) && elapsed >= introVideo.duration) return showMainDisplay();
+      if (Number.isFinite(introVideo.duration) && elapsed >= introVideo.duration) return showFinalBlack();
       if (elapsed > .25 && Number.isFinite(introVideo.duration)) introVideo.currentTime = Math.min(elapsed, Math.max(0, introVideo.duration - .15));
       try {
         await introVideo.play();
@@ -213,7 +217,7 @@
           els['opening-screen'].classList.add('video-playing');
         } catch (videoError) {
           console.error('Inauguration video could not be played.', videoError);
-          showMainDisplay();
+          showFinalBlack();
         }
       }
     };
@@ -223,7 +227,8 @@
   }
   function runTimeline() {
     clearTimeout(phaseTimer);
-    showFinalBlack(role === 'display');
+    if (role === 'display') startIntroVideo();
+    else showFinalBlack(false);
   }
   function showReveal() {
     clearTimeout(phaseTimer);
@@ -396,11 +401,11 @@
     if (role === 'display') renderState();
   });
   socket.on('ceremony:reset', resetClient);
-  introVideo.addEventListener('ended', () => showMainDisplay());
+  introVideo.addEventListener('ended', () => showFinalBlack());
   introVideo.addEventListener('error', () => {
     if (ceremonyStage !== 'introVideo') return;
     console.error('Inauguration video failed to load or decode.', introVideo.error);
-    showMainDisplay();
+    showFinalBlack();
   });
   ring.style.strokeDasharray = String(circumference);
   ring.style.strokeDashoffset = String(circumference);
