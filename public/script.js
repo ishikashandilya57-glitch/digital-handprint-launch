@@ -134,7 +134,10 @@
     if (!role || !state) return;
     if (state.progress) Object.keys(guestProgress).forEach(slot => { guestProgress[slot] = state.progress[slot] || 0; });
     if (state.phase === 'countdown') return runTimeline();
-    if (state.phase === 'reveal') return showFinalBlack();
+    if (state.phase === 'reveal') {
+      if (role === 'display') return showFinalBlack();
+      return showGuestCeremonyStatus();
+    }
     if (role === 'display' && ['opening', 'introVideo'].includes(ceremonyStage)) return;
     renderBase();
     const count = Object.values(state.ready).filter(Boolean).length;
@@ -272,7 +275,14 @@
   function runTimeline() {
     clearTimeout(phaseTimer);
     if (role === 'display') startIntroVideo();
-    else showFinalBlack(false);
+    else showGuestCeremonyStatus();
+  }
+  function showGuestCeremonyStatus() {
+    show('guest-screen');
+    document.getElementById('status-title').textContent = 'Handprint verified';
+    document.getElementById('status-copy').textContent = 'Inauguration in progress on the Main Display';
+    document.getElementById('ready-count').textContent = '4 / 4';
+    document.getElementById('mini-progress-value').style.width = '100%';
   }
   function showReveal() {
     clearTimeout(phaseTimer);
